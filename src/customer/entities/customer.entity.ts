@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from "typeorm";
+import { Allergen } from "../../allergen/entities/allergen.entity.js";
 
 @Entity('customer')
 export class Customer {
@@ -16,5 +17,13 @@ export class Customer {
 
     @Column()
     password: string;
+
+    @ManyToMany(()=> Allergen, (allergen) => allergen.customers, {cascade: true})
+    @JoinTable({
+        name: "customer_allergen",
+        joinColumn: {name: 'customer_id', referencedColumnName: 'customer_id'},
+        inverseJoinColumn: {name: 'allergen_id', referencedColumnName: 'allergen_id'}
+    })
+    allergens: Allergen[]
 }
 
