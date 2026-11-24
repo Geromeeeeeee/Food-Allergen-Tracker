@@ -8,6 +8,7 @@ import { CustomerModule } from './customer/customer.module.js';
 import { BusinessOwnerModule } from './business_owner/business_owner.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { MenuItemModule } from './menu_item/menu_item.module.js';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [CustomerModule, BusinessOwnerModule, AllergenModule, BusinessModule,
@@ -22,7 +23,10 @@ import { MenuItemModule } from './menu_item/menu_item.module.js';
       synchronize: false,
     }),
     AuthModule,
-    MenuItemModule
+    MenuItemModule,
+    ConfigModule.forRoot({
+      isGlobal: true
+    })
   ],
   controllers: [AppController],
   providers: [AppService],
