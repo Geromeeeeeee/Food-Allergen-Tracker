@@ -1,4 +1,22 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateBusinessOwnerDto } from './create-business_owner.dto.js';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+export class UpdateBusinessOwnerDto{
+    @IsOptional()
+    @IsString()
+    fname: string;
 
-export class UpdateBusinessOwnerDto extends PartialType(CreateBusinessOwnerDto) {}
+    @IsOptional()
+    @IsString()
+    lname: string;
+
+    @IsOptional()
+    @IsEmail()
+    email: string;
+
+    @IsOptional()
+    @IsString()
+    password: string;
+
+    @IsNotEmpty()
+    @IsString()
+    currentPassword: string
+}

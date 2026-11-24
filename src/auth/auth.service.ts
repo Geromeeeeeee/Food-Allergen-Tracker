@@ -17,7 +17,7 @@ export class AuthService {
     ){}
 
     //Business Owner Login right hereeee
-    async loginBusinessOwner(email: string, pass:string) {
+    async loginBusinessOwner(email: string, password:string) {
         const owner = await this.businesOwnerRepository
             .createQueryBuilder('owner')
             .addSelect('owner.password')
@@ -28,7 +28,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid email or password.');
         }
 
-        const validPass = await bcrypt.compare(pass, owner.password)
+        const validPass = await bcrypt.compare(password, owner.password)
         if(!validPass){
             throw new UnauthorizedException('Invalid email or password.');
         }
@@ -41,7 +41,7 @@ export class AuthService {
     }
 
     //Customer Login dito
-    async loginCustomer(email: string, pass:string){
+    async loginCustomer(email: string, password:string){
         const customerRecord = await this.customerRepository
             .createQueryBuilder('customer')
             .addSelect('customer.password')
@@ -52,7 +52,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid email or password.');
         }
 
-        const validPass = await bcrypt.compare(pass, customerRecord.password)
+        const validPass = await bcrypt.compare(password, customerRecord.password)
         if(!validPass){
             throw new UnauthorizedException('Invalid email or password.');
         }

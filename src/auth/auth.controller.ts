@@ -6,13 +6,13 @@ export class AuthController {
     constructor (private readonly authService: AuthService){}
 
     @Post('login/business-owner')
-    async loginBusinessOwner (@Body() body: {email: string; pass:string}){
-        return this.authService.loginBusinessOwner(body.email, body.pass)
+    async loginBusinessOwner (@Body() body: {email: string; password:string}){
+        return this.authService.loginBusinessOwner(body.email, body.password)
     }
 
     @Post('login/customer')
-    async loginCustomer (@Body() body: {email: string; pass:string}){
-        return this.authService.loginCustomer(body.email, body.pass)
+    async loginCustomer (@Body() body: {email: string; password:string}){
+        return this.authService.loginCustomer(body.email, body.password)
     }
 
 }
