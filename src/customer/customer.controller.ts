@@ -3,6 +3,8 @@ import { CustomerService } from './customer.service.js';
 import { CreateCustomerDto } from './dto/create-customer.dto.js';
 import { UpdateCustomerDto } from './dto/update-customer.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { UnauthorizedException } from '@nestjs/common';
+import { DeleteAccountDto } from './dto/delete-customer-dto.js';
 
 @Controller('customer')
 export class CustomerController {
@@ -35,13 +37,35 @@ export class CustomerController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customerService.update(+id, updateCustomerDto);
+  async update(
+    @Req() req: any, 
+    @Param('id') id: string, 
+    @Body() updateCustomerDto: UpdateCustomerDto
+  ) {
+    const loggedInUserId = req.user.userId;
+    const targetId = +id;
+
+    if (loggedInUserId !== targetId) {
+      throw new UnauthorizedException('You are not authorized to update this account.');
+    }
+
+    return this.customerService.updateCustomer(targetId, updateCustomerDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.customerService.remove(+id);
+  async remove(
+    @Req() req: any, 
+    @Param('id') id: string, 
+    @Body() deleteAccountDto: DeleteAccountDto
+  ) {
+    const loggedInUserId = req.user.userId;
+    const targetId = +id;
+
+    if (loggedInUserId !== targetId) {
+      throw new UnauthorizedException('You are not authorized to delete this account.');
+    }
+
+    return this.customerService.remove(targetId, deleteAccountDto.currentPassword);
   }
 }

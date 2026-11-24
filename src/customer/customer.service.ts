@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto.js';
 import { UpdateCustomerDto } from './dto/update-customer.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -50,11 +50,55 @@ export class CustomerService {
     })
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async updateCustomer(customerId: number, updateCustomerDto: UpdateCustomerDto) {
+    const {currentPassword, password, ...updateData} = updateCustomerDto;
+
+    const customer = await this.customerRepository
+      .createQueryBuilder('customer')
+      .addSelect('customer.password')
+      .where('customer.customer_id = :id', { id: customerId })
+      .getOne();
+
+      if (!customer) {
+        throw new UnauthorizedException('Customer not found.');
+      }
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, customer.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Incorrect current password.');
+      }
+
+      if (password) {
+        const salt = await bcrypt.genSalt();
+        customer.password = await bcrypt.hash(password, salt);
+      }
+
+      Object.assign(customer, updateData);
+
+      await this.customerRepository.save(customer);
+
+      const { password: _, ...result } = customer;
+      return "Profile Updated";
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(customerId: number, currentPassword: string) {
+    const customer = await this.customerRepository
+    .createQueryBuilder('customer')
+    .addSelect('customer.password')
+    .where('customer.customer_id = :id', { id: customerId })
+    .getOne();
+
+    if (!customer) {
+      throw new UnauthorizedException('Customer not found.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, customer.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Incorrect current password.');
+    }
+
+    await this.customerRepository.remove(customer);
+
+    return { message: 'Account successfully deleted.' };
   }
 }
