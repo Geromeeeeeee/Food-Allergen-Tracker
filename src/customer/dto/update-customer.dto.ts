@@ -18,10 +18,6 @@ export class UpdateCustomerDto{
     @MinLength(8)
     password: string;
 
-    @IsOptional()
-    @IsArray()
-    allergen_ids?: number[];
-
     @IsString()
     @IsNotEmpty()
     currentPassword: string

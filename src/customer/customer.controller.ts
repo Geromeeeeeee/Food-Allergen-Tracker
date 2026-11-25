@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { CustomerService } from './customer.service.js';
 import { CreateCustomerDto } from './dto/create-customer.dto.js';
 import { UpdateCustomerDto } from './dto/update-customer.dto.js';
@@ -23,6 +23,13 @@ export class CustomerController {
     return this.customerService.findOne(customerId);
   }
 
+  @Get('allergens')
+  @UseGuards(JwtAuthGuard)
+  getMyAllergens(@Req() req:any){
+    const customerId = req.user.userId
+    return this.customerService.getCustomerAllergen(customerId)
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   findAll() {
@@ -35,7 +42,7 @@ export class CustomerController {
     return this.customerService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put('profile')
   @UseGuards(JwtAuthGuard)
   async update(
     @Req() req: any, 
@@ -50,6 +57,16 @@ export class CustomerController {
     }
 
     return this.customerService.updateCustomer(targetId, updateCustomerDto);
+  }
+
+  @Put('allergens')
+  @UseGuards(JwtAuthGuard)
+  updateAllergens(
+    @Req() req: any,
+    @Body() body: { allergen_ids: number[] }
+  ){
+    const customerId = req.user.userId;
+    return this.customerService.updateCustomerAllergen(customerId, body.allergen_ids);
   }
 
   @Delete(':id')
@@ -67,5 +84,15 @@ export class CustomerController {
     }
 
     return this.customerService.remove(targetId, deleteAccountDto.currentPassword);
+  }
+
+  @Delete('allergens/:allergenId')
+  @UseGuards(JwtAuthGuard)
+  async removeAllergen(
+    @Req() req: any, 
+    @Param('allergenId') allergenId: string,
+  ){
+    const customerId = req.user.userId;
+    return this.customerService.removeCustomerAllergen(customerId, +allergenId);
   }
 }
