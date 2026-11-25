@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
 import { MenuItemService } from './menu_item.service.js';
 import { CreateMenuItemDto } from './dto/create-menu_item.dto.js';
 import { UpdateMenuItemDto } from './dto/update-menu_item.dto.js';
@@ -6,12 +6,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { BusinessOwnerGuard } from '../auth/role_guards/business_owner_guard.js';
 
 @Controller('menu-item')
-@UseGuards(JwtAuthGuard)
 export class MenuItemController {
   constructor(private readonly menuItemService: MenuItemService) {}
 
   @Post()
-  @UseGuards(BusinessOwnerGuard)
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   create(@Body() createMenuItemDto: CreateMenuItemDto) {
     return this.menuItemService.create(createMenuItemDto);
   }
@@ -26,14 +25,19 @@ export class MenuItemController {
     return this.menuItemService.findOne(+id);
   }
 
-  @Patch(':id')
-  @UseGuards(BusinessOwnerGuard)
-  update(@Param('id') id: string, @Body() updateMenuItemDto: UpdateMenuItemDto) {
-    return this.menuItemService.update(+id, updateMenuItemDto);
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
+  update(
+    @Req() req: any,
+    @Param('id') menuId: string, 
+    @Body() updateMenuItemDto: UpdateMenuItemDto
+  ) {
+    const businessOwnerId = req.user.userId;
+    return this.menuItemService.update(+menuId, businessOwnerId, updateMenuItemDto);
   }
 
   @Delete(':id')
-  @UseGuards(BusinessOwnerGuard)
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   remove(@Param('id') id: string) {
     return this.menuItemService.remove(+id);
   }

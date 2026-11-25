@@ -7,7 +7,7 @@ export class BusinessOwnerGuard implements CanActivate {
         const request = context.switchToHttp().getRequest()
         const user = request.user
 
-        if(!user || user.role === 'business_owner'){
+        if(!user || user.role !== 'business_owner'){
             throw new ForbiddenException('Access denied. Only business owners can perform this action.');
         }
 

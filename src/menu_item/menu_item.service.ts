@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateMenuItemDto } from './dto/create-menu_item.dto.js';
 import { UpdateMenuItemDto } from './dto/update-menu_item.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -43,8 +43,44 @@ export class MenuItemService {
     })
   }
 
-  update(id: number, updateMenuItemDto: UpdateMenuItemDto) {
-    return `This action updates a #${id} menuItem`;
+  async update(menuId: number, businessOwnerId: number, updateMenuItemDto: UpdateMenuItemDto) {
+    const { allergen_ids, ...menuData } = updateMenuItemDto;
+
+    const menuItem = await this.menuItemRepository.findOne({
+      where: { menu_id: menuId },
+      relations: { 
+        allergens: true, 
+        business: true
+      },
+    });
+
+    if (!menuItem) {
+      throw new NotFoundException('Item does not exist.');
+    }
+
+    if (menuItem.business.owner_id !== businessOwnerId) {
+      throw new UnauthorizedException('You are not authorized to update menu items for another business.');
+    }
+
+    Object.assign(menuItem, menuData);
+
+    if (allergen_ids !== undefined) {
+      if (allergen_ids.length > 0) {
+        const attachedAllergens = await this.allergenRepository.findBy({
+          allergen_id: In(allergen_ids),
+        });
+        menuItem.allergens = attachedAllergens;
+      } else {
+        menuItem.allergens = [];
+      }
+    }
+
+    await this.menuItemRepository.save(menuItem);
+
+    return {
+      message: 'Menu item updated successfully',
+      menuItem,
+    };
   }
 
   remove(id: number) {
