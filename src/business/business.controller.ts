@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Req } from '@nestjs/common';
 import { BusinessService } from './business.service.js';
 import { CreateBusinessDto } from './dto/create-business.dto.js';
 import { UpdateBusinessDto } from './dto/update-business.dto.js';
@@ -25,12 +25,17 @@ export class BusinessController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBusinessDto: UpdateBusinessDto) {
-    return this.businessService.update(+id, updateBusinessDto);
+  update(@Req() req: any, @Param('id') businessId: string, @Body() updateBusinessDto: UpdateBusinessDto) {
+    const ownerId = req.user.userId;
+
+    return this.businessService.update(+businessId, +ownerId, updateBusinessDto)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.businessService.remove(+id);
+  remove(
+    @Req() req: any, @Param('id') businessId: string
+  ) {
+    const ownerId = req.user.userId
+    return this.businessService.remove(+businessId, +ownerId);
   }
 }

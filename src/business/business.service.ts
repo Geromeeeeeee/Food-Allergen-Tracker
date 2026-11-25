@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBusinessDto } from './dto/create-business.dto.js';
 import { UpdateBusinessDto } from './dto/update-business.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,11 +29,37 @@ export class BusinessService {
     return `This action returns a #${id} business`;
   }
 
-  update(id: number, updateBusinessDto: UpdateBusinessDto) {
-    return `This action updates a #${id} business`;
+  async update(businessId: number, ownerId: number, updateBusinessDto: UpdateBusinessDto) {
+    const business = await this.businessRepository.findOne({
+      where:{
+        business_id: businessId,
+        owner_id: ownerId
+      }
+    })
+
+    if(!business){
+      throw new NotFoundException('Business not found or you do not have permission to update it.');
+    }
+
+    Object.assign(business, updateBusinessDto);
+
+    return this.businessRepository.save(business);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} business`;
+  async remove(businessId: number, ownerId: number) {
+    const business = await this.businessRepository.findOne({
+      where:{
+        business_id: businessId,
+        owner_id: ownerId
+      }
+    })
+
+    if(!business){
+      throw new NotFoundException('Business not found or you do not have permission to update it.');
+    }
+
+    await this.businessRepository.remove(business)
+
+    return {message: "Delete Successful"}
   }
 }
