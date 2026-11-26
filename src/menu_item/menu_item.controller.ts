@@ -15,6 +15,17 @@ export class MenuItemController {
     return this.menuItemService.create(createMenuItemDto);
   }
 
+  @Post(':id/allergens')
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
+  attachAllergens(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { allergen_ids: number[] },
+  ) {
+    const businessOwnerId = req.user.userId;
+    return this.menuItemService.attachAllergensToMenuItem(+id, businessOwnerId, body.allergen_ids);
+  }
+
   @Get()
   findAll(@Query('business_id') businessId? : string) {
     return this.menuItemService.findAll(businessId ? +businessId : undefined);
@@ -49,5 +60,16 @@ export class MenuItemController {
   ) {
     const businessOwnerId = req.user.userId;
     return this.menuItemService.remove(+id, businessOwnerId);
+  }
+
+  @Delete(':id/allergens/:allergenId')
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
+  removeMenuAllergen(
+    @Req() req: any,
+    @Param('id') menuId: string,
+    @Param('allergenId') allergenId: string,
+  ) {
+    const businessOwnerId = req.user.userId;
+    return this.menuItemService.removeMenuItemAllergen(+menuId, businessOwnerId, +allergenId);
   }
 }

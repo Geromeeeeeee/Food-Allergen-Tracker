@@ -29,6 +29,44 @@ export class MenuItemService {
     return this.menuItemRepository.save(newItem)
   }
 
+  async attachAllergensToMenuItem(menuId: number, businessOwnerId: number, allergen_ids: number[]) {
+    const menuItem = await this.menuItemRepository.findOne({
+      where: { menu_id: menuId },
+      relations: { allergens: true, business: true },
+    });
+
+    if (!menuItem) {
+      throw new NotFoundException('Menu item does not exist.');
+    }
+
+    if (menuItem.business.owner_id !== businessOwnerId) {
+      throw new UnauthorizedException('You are not authorized to modify menu items for another business.');
+    }
+
+    const incomingAllergens = await this.allergenRepository.findBy({
+      allergen_id: In(allergen_ids),
+    });
+
+    const allergenMap = new Map<number, Allergen>();
+
+    menuItem.allergens.forEach((allergen) => {
+      allergenMap.set(allergen.allergen_id, allergen);
+    });
+
+    incomingAllergens.forEach((allergen) => {
+      allergenMap.set(allergen.allergen_id, allergen);
+    });
+
+    menuItem.allergens = Array.from(allergenMap.values());
+
+    await this.menuItemRepository.save(menuItem);
+
+    return {
+      message: 'Allergens successfully added to menu item',
+      menuItem,
+    };
+  }
+
   findAll(businessId?: number) {
     return this.menuItemRepository.find({
       where: businessId ? { business_id: businessId } : {},
@@ -113,5 +151,31 @@ export class MenuItemService {
     await this.menuItemRepository.remove(menuItem);
 
     return { message: 'Item successfully deleted' };
+  }
+
+  async removeMenuItemAllergen(menuId: number, businessOwnerId: number, allergenId: number) {
+    const menuItem = await this.menuItemRepository.findOne({
+      where: { menu_id: menuId },
+      relations: { allergens: true, business: true },
+    });
+
+    if (!menuItem) {
+      throw new NotFoundException('Menu item does not exist.');
+    }
+
+    if (menuItem.business.owner_id !== businessOwnerId) {
+      throw new UnauthorizedException('You are not authorized to modify menu items for another business.');
+    }
+
+    menuItem.allergens = menuItem.allergens.filter(
+      (allergen) => allergen.allergen_id !== allergenId
+    );
+
+    await this.menuItemRepository.save(menuItem);
+
+    return {
+      message: 'Allergen successfully removed from menu item',
+      allergens: menuItem.allergens,
+    };
   }
 }
