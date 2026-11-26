@@ -14,7 +14,7 @@ export class MenuItemService {
     private menuItemRepository: Repository <MenuItem>,
 
     @InjectRepository(Allergen)
-    private allergenRepository: Repository<Allergen>
+    private allergenRepository: Repository<Allergen>,
   ){}
 
   async create(createMenuItemDto: CreateMenuItemDto) {
@@ -83,7 +83,22 @@ export class MenuItemService {
     };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} menuItem`;
+  async remove(itemId: number, businessOwnerId: number) {
+    const menuItem = await this.menuItemRepository.findOne({
+      where: { menu_id: itemId },
+      relations: { business: true }
+    });
+
+    if (!menuItem) {
+      throw new NotFoundException('Item not found');
+    }
+
+    if (menuItem.business.owner_id !== businessOwnerId) {
+      throw new UnauthorizedException('You are not authorized to delete menu items for another business.');
+    }
+
+    await this.menuItemRepository.remove(menuItem);
+
+    return { message: 'Item successfully deleted' };
   }
 }

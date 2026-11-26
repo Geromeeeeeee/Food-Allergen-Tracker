@@ -38,7 +38,11 @@ export class MenuItemController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
-  remove(@Param('id') id: string) {
-    return this.menuItemService.remove(+id);
+  async remove(
+    @Req() req: any,
+    @Param('id') id: string
+  ) {
+    const businessOwnerId = req.user.userId;
+    return this.menuItemService.remove(+id, businessOwnerId);
   }
 }
