@@ -43,6 +43,19 @@ export class MenuItemService {
     })
   }
 
+  async findItemAllergen(id: number){
+    const menuItem = await this.menuItemRepository.findOne({
+      where:{menu_id: id},
+      relations:{allergens: true, business: true}
+    })
+
+    if (!menuItem) {
+      throw new NotFoundException('Menu item does not exist.');
+    }
+
+    return menuItem;
+  }
+
   async update(menuId: number, businessOwnerId: number, updateMenuItemDto: UpdateMenuItemDto) {
     const { allergen_ids, ...menuData } = updateMenuItemDto;
 

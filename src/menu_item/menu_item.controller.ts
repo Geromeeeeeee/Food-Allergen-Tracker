@@ -25,6 +25,11 @@ export class MenuItemController {
     return this.menuItemService.findOne(+id);
   }
 
+  @Get(':id/allergens')
+  findOneWithAllergens(@Param('id') id: string) {
+    return this.menuItemService.findItemAllergen(+id);
+  }
+
   @Put(':id')
   @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   update(
