@@ -13,9 +13,12 @@ export class BusinessService {
     private businessRepository: Repository<Business>
   ){}
 
-  create(createBusinessDto: CreateBusinessDto) {
-    const newBusiness = this.businessRepository.create(createBusinessDto)
-    return this.businessRepository.save(newBusiness)
+  async create(ownerId: number, createBusinessDto: CreateBusinessDto) {
+    const newBusiness = this.businessRepository.create({
+      ...createBusinessDto,
+      owner: { owner_id: ownerId }
+    });
+    return this.businessRepository.save(newBusiness);
   }
 
   findAll(location?:string) {
@@ -25,8 +28,17 @@ export class BusinessService {
     })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} business`;
+  async findByName(name: string) {
+    const business = await this.businessRepository.findOne({
+      where: { business_name: Like(`%${name}%`) },
+      relations: { owner: true }
+    });
+
+    if (!business) {
+      throw new NotFoundException(`Business with name matching "${name}" not found.`);
+    }
+
+    return business;
   }
 
   async update(businessId: number, ownerId: number, updateBusinessDto: UpdateBusinessDto) {
