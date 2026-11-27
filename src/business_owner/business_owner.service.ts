@@ -24,8 +24,11 @@ export class BusinessOwnerService {
       ...restData,
       password: hashedPass
     })
+    const savedOwner = await this.businessOwnerRepository.save(newBusinessOwner);
 
-    return this.businessOwnerRepository.save(newBusinessOwner)
+    const { password: _, ...result } = savedOwner;
+
+    return result;
   }
 
   findAll() {

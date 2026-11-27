@@ -15,7 +15,7 @@ export class Customer {
     @Column()
     email: string;
 
-    @Column()
+    @Column({select: false})
     password: string;
 
     @ManyToMany(()=> Allergen, (allergen) => allergen.customers, {cascade: true})

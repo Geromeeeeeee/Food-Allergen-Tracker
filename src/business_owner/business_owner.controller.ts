@@ -3,6 +3,7 @@ import { BusinessOwnerService } from './business_owner.service.js';
 import { CreateBusinessOwnerDto } from './dto/create-business_owner.dto.js';
 import { UpdateBusinessOwnerDto } from './dto/update-business_owner.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { BusinessOwnerGuard } from '../auth/role_guards/business_owner_guard.js';
 import { DeleteBusinessOwnerDto } from './dto/delete-business-owner-dto.js';
 
 @Controller('business-owner')
@@ -19,30 +20,34 @@ export class BusinessOwnerController {
     return this.businessOwnerService.findAll();
   }
 
+  //:id retained for customer's retrieval of business owners whatever
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.businessOwnerService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBusinessOwnerDto: UpdateBusinessOwnerDto) {
-    return this.businessOwnerService.update(+id, updateBusinessOwnerDto);
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
+  @Patch()
+  update(
+    @Req () req: any,
+    @Body () updateBusinessOwnerDto: UpdateBusinessOwnerDto
+  ) {
+    const ownerId = req.user.userId
+    return this.businessOwnerService.update(ownerId, updateBusinessOwnerDto);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   async remove (
-    @Req() req: any, 
-    @Param('id') id: string,
+    @Req() req: any,
     @Body() deleteBusinessOwnerDto: DeleteBusinessOwnerDto
   ) {
-    const loggedInUserId = req.user.userId;
-    const targetId = +id;
+    const ownerId = req.user.userId;
 
-    if (loggedInUserId !== targetId) {
+    if (!ownerId) {
       throw new UnauthorizedException('You are not authorized to delete this account.');
     }
 
-    return this.businessOwnerService.remove(targetId, deleteBusinessOwnerDto.currentPassword);
+    return this.businessOwnerService.remove(ownerId, deleteBusinessOwnerDto.currentPassword);
   }
 }

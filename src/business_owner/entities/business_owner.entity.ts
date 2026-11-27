@@ -14,6 +14,6 @@ export class BusinessOwner {
     @Column()
     email: string;
 
-    @Column()
+    @Column({select: false})
     password: string
 }
