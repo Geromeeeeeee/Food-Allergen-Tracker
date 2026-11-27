@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { BusinessOwner } from '../business_owner/entities/business_owner.entity.js';
 import { Customer } from '../customer/entities/customer.entity.js';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto.js';
 
 @Injectable()
 export class AuthService {
