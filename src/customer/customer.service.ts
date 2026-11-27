@@ -64,7 +64,7 @@ export class CustomerService {
   }
 
   async updateCustomer(customerId: number, updateCustomerDto: UpdateCustomerDto) {
-    const {currentPassword, password, ...updateData} = updateCustomerDto;
+    const { currentPassword, password, ...updateData } = updateCustomerDto;
 
     const customer = await this.customerRepository
       .createQueryBuilder('customer')
@@ -72,26 +72,26 @@ export class CustomerService {
       .where('customer.customer_id = :id', { id: customerId })
       .getOne();
 
-      if (!customer) {
-        throw new UnauthorizedException('Customer not found.');
-      }
+    if (!customer) {
+      throw new UnauthorizedException('Customer not found.');
+    }
 
-      const isPasswordValid = await bcrypt.compare(currentPassword, customer.password);
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('Incorrect current password.');
-      }
+    const isPasswordValid = await bcrypt.compare(currentPassword, customer.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Incorrect current password.');
+    }
 
-      if (password) {
-        const salt = await bcrypt.genSalt();
-        customer.password = await bcrypt.hash(password, salt);
-      }
+    if (password) {
+      const salt = await bcrypt.genSalt();
+      customer.password = await bcrypt.hash(password, salt);
+    }
 
-      Object.assign(customer, updateData);
+    Object.assign(customer, updateData);
 
-      await this.customerRepository.save(customer);
+    await this.customerRepository.save(customer);
 
-      const { password: _, ...result } = customer;
-      return "Profile Updated";
+    const { password: _, ...result } = customer;
+    return "Profile Updated";
   }
 
   async updateCustomerAllergen(customerId: number, allergen_ids: number[]){

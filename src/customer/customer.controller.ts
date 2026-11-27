@@ -23,7 +23,7 @@ export class CustomerController {
     return this.customerService.findOne(customerId);
   }
 
-  @Get('allergens')
+  @Get('allergen')
   @UseGuards(JwtAuthGuard)
   getMyAllergens(@Req() req:any){
     const customerId = req.user.userId
@@ -45,21 +45,15 @@ export class CustomerController {
   @Put('profile')
   @UseGuards(JwtAuthGuard)
   async update(
-    @Req() req: any, 
-    @Param('id') id: string, 
+    @Req() req: any,  
     @Body() updateCustomerDto: UpdateCustomerDto
   ) {
-    const loggedInUserId = req.user.userId;
-    const targetId = +id;
+    const customerId = req.user.userId;
 
-    if (loggedInUserId !== targetId) {
-      throw new UnauthorizedException('You are not authorized to update this account.');
-    }
-
-    return this.customerService.updateCustomer(targetId, updateCustomerDto);
+    return this.customerService.updateCustomer(customerId, updateCustomerDto);
   }
 
-  @Put('allergens')
+  @Put('allergen')
   @UseGuards(JwtAuthGuard)
   updateAllergens(
     @Req() req: any,
@@ -69,21 +63,19 @@ export class CustomerController {
     return this.customerService.updateCustomerAllergen(customerId, body.allergen_ids);
   }
 
-  @Delete(':id')
+  @Delete()
   @UseGuards(JwtAuthGuard)
   async remove(
-    @Req() req: any, 
-    @Param('id') id: string, 
+    @Req() req: any,  
     @Body() deleteAccountDto: DeleteAccountDto
   ) {
-    const loggedInUserId = req.user.userId;
-    const targetId = +id;
+    const customerId = req.user.userId;
 
-    if (loggedInUserId !== targetId) {
+    if (!customerId) {
       throw new UnauthorizedException('You are not authorized to delete this account.');
     }
 
-    return this.customerService.remove(targetId, deleteAccountDto.currentPassword);
+    return this.customerService.remove(customerId, deleteAccountDto.currentPassword);
   }
 
   @Delete('allergens/:allergenId')
