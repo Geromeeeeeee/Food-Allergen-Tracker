@@ -15,7 +15,7 @@ export class MenuItemController {
     return this.menuItemService.create(createMenuItemDto);
   }
 
-  @Post(':id/allergens')
+  @Post(':id/allergen')
   @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   attachAllergens(
     @Req() req: any,
@@ -62,7 +62,7 @@ export class MenuItemController {
     return this.menuItemService.remove(+id, businessOwnerId);
   }
 
-  @Delete(':id/allergens/:allergenId')
+  @Delete(':id/allergen/:allergenId')
   @UseGuards(JwtAuthGuard, BusinessOwnerGuard)
   removeMenuAllergen(
     @Req() req: any,

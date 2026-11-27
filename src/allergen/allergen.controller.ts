@@ -11,7 +11,7 @@ export class AllergenController {
         return this.allergenService.findAll();
     }
 
-    @Get(':id/menu-items')
+    @Get(':id/menu-item')
     findOneWithMenuItems(@Param('id') id: string) {
         return this.allergenService.findOneWithMenuItems(+id);
     }

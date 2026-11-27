@@ -15,11 +15,6 @@ export class BusinessOwnerController {
     return this.businessOwnerService.create(createBusinessOwnerDto);
   }
 
-  @Get()
-  findAll() {
-    return this.businessOwnerService.findAll();
-  }
-
   //:id retained for customer's retrieval of business owners whatever
   @Get(':id')
   findOne(@Param('id') id: string) {

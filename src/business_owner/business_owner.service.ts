@@ -31,10 +31,6 @@ export class BusinessOwnerService {
     return result;
   }
 
-  findAll() {
-    return `This action returns all businessOwner`;
-  }
-
   findOne(id: number) {
     return this.businessOwnerRepository.findOne({
       where: {owner_id: id}

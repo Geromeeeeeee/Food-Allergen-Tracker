@@ -52,10 +52,6 @@ export class CustomerService {
     return this.customerRepository.save(newCustomer);
   }
 
-  findAll() {
-    return `This action returns all customer`;
-  }
-
   findOne(id: number) {
     return this.customerRepository.findOne({
       where: {customer_id: id},

@@ -30,12 +30,6 @@ export class CustomerController {
     return this.customerService.getCustomerAllergen(customerId)
   }
 
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.customerService.findAll();
-  }
-
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
