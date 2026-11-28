@@ -49,7 +49,12 @@ export class CustomerService {
       newCustomer.allergens = attachedAllergens
     }
 
-    return this.customerRepository.save(newCustomer);
+    await this.customerRepository.save(newCustomer)
+
+    const {password: _, ...result} = newCustomer
+
+    return result
+
   }
 
   findOne(id: number) {
